@@ -1,0 +1,6 @@
+export const THEME = {
+  BACKGROUND_COLOR: '#191414',
+  MAIN_COLOR: '#1DB954',
+  SECOND_COLOR: '#282828',
+  GREY: '#B3B3B3'
+}
