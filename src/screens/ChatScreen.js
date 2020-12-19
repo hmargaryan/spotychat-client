@@ -1,4 +1,11 @@
-import React, { useLayoutEffect, useEffect, useState, useCallback } from 'react'
+import io from 'socket.io-client'
+import React, {
+  useLayoutEffect,
+  useEffect,
+  useState,
+  useCallback,
+  useRef
+} from 'react'
 import { View, StyleSheet, Image, FlatList } from 'react-native'
 import { AppContainer } from '../components/UI/wrappers/AppContainer'
 import { AppIconButton } from '../components/UI/buttons/AppIconButton'
@@ -8,26 +15,22 @@ import { THEME } from '../theme'
 import placeholder from '../../assets/avatar-placeholder.png'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { updateMessages } from '../store/actions/chat.action'
-import { socket } from '../utils/socket'
 import { useFocusEffect } from '@react-navigation/native'
+import config from '../config/config'
+
+let socket
 
 export const ChatScreen = ({ navigation, route }) => {
-  const [chatId, setChatId] = useState(route.params.chatId)
-  const [interlocutorId, setInterlocutorId] = useState(
-    route.params.interlocutorId
-  )
-  const [name, setName] = useState(route.params.name)
-  const [avatar, setAvatar] = useState(route.params.avatar)
-  const [message, setMessage] = useState('')
-
-  const dispatch = useDispatch()
-  const insets = useSafeAreaInsets()
+  const messageList = useRef()
+  const { name, avatar, chatId, interlocutorId } = route.params
   const userId = useSelector(state => state.user.id)
-  const m = useSelector(
-    state => state.chat.chats.find(c => c._id === chatId).messages
+  const [message, setMessage] = useState('')
+  const [messages, setMessages] = useState(
+    useSelector(state => state.user.chats.find(c => c._id === chatId).messages)
   )
-  const [messages, setMessages] = useState(m)
+
+  // const dispatch = useDispatch()
+  const insets = useSafeAreaInsets()
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -50,35 +53,30 @@ export const ChatScreen = ({ navigation, route }) => {
     })
   }, [])
 
-  useLayoutEffect(() => {}, [])
-
-  useFocusEffect(
-    useCallback(() => {
-      socket.emit('joinToChat', { chatId, userIds: [interlocutorId, userId] })
-      return () => {
-        socket.disconnect()
-      }
-    }, [])
-  )
+  useEffect(() => {
+    socket = io(config.API_ENDPOINT)
+    socket.emit('join', { chatId, users: [interlocutorId, userId] })
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
 
   useEffect(() => {
     socket.on('message', message => {
-      console.log(message)
-      dispatch(updateMessages(chatId, message))
+      setMessages(messages => [...messages, message])
+      messageList.current.scrollToEnd()
     })
   }, [])
 
   const sendMessage = () => {
-    if (message) {
+    if (message.trim()) {
       socket.emit(
         'sendMessage',
-        {
-          chatId,
-          text: message,
-          owner: userId,
-          interlocutorId
-        },
-        () => setMessage('')
+        { chatId, owner: userId, text: message },
+        () => {
+          setMessage('')
+          messageList.current.scrollToEnd()
+        }
       )
     }
   }
@@ -87,6 +85,7 @@ export const ChatScreen = ({ navigation, route }) => {
     <>
       <AppContainer safe={false}>
         <FlatList
+          ref={messageList}
           data={messages}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => {

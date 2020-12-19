@@ -7,7 +7,7 @@ import { AppContainer } from '../components/UI/wrappers/AppContainer'
 import { AppButton } from '../components/UI/buttons/AppButton'
 import logo from '../../assets/logo.png'
 import config from '../config/config'
-import { login } from '../store/actions/auth.action'
+import { login } from '../store/actions'
 
 WebBrowser.maybeCompleteAuthSession()
 

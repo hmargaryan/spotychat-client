@@ -17,16 +17,16 @@ import { defineIcon } from './src/utils/defineIcon'
 import { bootstrap } from './src/bootstrap'
 import store from './src/store/store'
 import { THEME } from './src/theme'
-import { login } from './src/store/actions/auth.action'
+import { login } from './src/store/actions'
 
 const App = () => {
+  const [isReady, setIsReady] = useState(false)
+
   const Tab = createBottomTabNavigator()
   const Stack = createStackNavigator()
 
-  const [isReady, setIsReady] = useState(false)
-
   const dispatch = useDispatch()
-  const { isAuth } = useSelector(state => state.auth)
+  const isAuth = useSelector(state => state.user.isAuth)
 
   useEffect(() => {
     dispatch(login())
