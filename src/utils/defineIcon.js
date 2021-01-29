@@ -1,10 +1,10 @@
-export const defineIcon = name => {
+export const defineIcon = (name) => {
   switch (name) {
-    case 'Profile':
-      return 'ios-person'
-    case 'Chats':
-      return 'ios-chatbubbles'
-    case 'Settings':
-      return 'ios-settings'
+    case "Profile":
+      return "ios-person";
+    case "Chat":
+      return "ios-chatbubbles";
+    case "Settings":
+      return "ios-settings";
   }
-}
+};
