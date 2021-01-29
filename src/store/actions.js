@@ -52,7 +52,6 @@ export const login = code => async dispatch => {
     if (!code) {
       throw new Error('Invalid code')
     }
-
     const { data } = await axios.get(`/auth?code=${code}`)
     const { accessToken } = data
     if (!accessToken) {

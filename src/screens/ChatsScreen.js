@@ -1,11 +1,9 @@
-import React, { useEffect, useCallback } from 'react'
-import { StyleSheet, FlatList, ScrollView, RefreshControl } from 'react-native'
+import React, { useEffect } from 'react'
+import { StyleSheet, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../components/Chat'
 import { AppContainer } from '../components/UI/wrappers/AppContainer'
-import { AppInput } from '../components/UI/inputs/AppInput'
-import { fetchUser, fetchChats } from '../store/actions'
-import { THEME } from '../theme'
+import { fetchUser } from '../store/actions'
 
 export const ChatsScreen = ({ navigation }) => {
   const dispatch = useDispatch()
@@ -15,11 +13,6 @@ export const ChatsScreen = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(fetchUser())
-    dispatch(fetchChats())
-  }, [dispatch])
-
-  const onRefresh = useCallback(() => {
-    dispatch(fetchChats())
   }, [dispatch])
 
   const goToChat = (chatId, interlocutorId, name, avatar) => {
@@ -28,33 +21,22 @@ export const ChatsScreen = ({ navigation }) => {
 
   return (
     <AppContainer>
-      <ScrollView
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={onRefresh}
-            tintColor={THEME.MAIN_COLOR}
-          />
-        }
-      >
-        <AppInput style={styles.input} placeholder={'Search'} />
-        <FlatList
-          data={chats}
-          keyExtractor={item => item._id}
-          renderItem={({ item }) => {
-            const { avatar, name, _id } = defineInterlocutor(userId, item)
-            const lastMessage = item.messages[item.messages.length - 1].text
-            return (
-              <Chat
-                avatar={avatar}
-                name={name}
-                message={lastMessage}
-                onPress={() => goToChat(item._id, _id, name, avatar)}
-              />
-            )
-          }}
-        />
-      </ScrollView>
+      <FlatList
+        data={chats}
+        keyExtractor={item => item._id}
+        renderItem={({ item }) => {
+          const { avatar, name, _id } = defineInterlocutor(userId, item)
+          const lastMessage = item.messages[item.messages.length - 1].text
+          return (
+            <Chat
+              avatar={avatar}
+              name={name}
+              message={lastMessage}
+              onPress={() => goToChat(item._id, _id, name, avatar)}
+            />
+          )
+        }}
+      />
     </AppContainer>
   )
 }
