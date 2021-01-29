@@ -28,20 +28,6 @@ export const fetchUser = () => async dispatch => {
   }
 }
 
-export const fetchChats = () => async dispatch => {
-  try {
-    dispatch({ type: FETCH_CHATS_REQUEST })
-    const accessToken = await AsyncStorage.getItem('accessToken')
-    const { data } = await axios.get('/chats', {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-    return dispatch({ type: FETCH_CHATS_SUCCESS, payload: data })
-  } catch (e) {
-    await AsyncStorage.removeItem('accessToken')
-    return dispatch({ type: FETCH_CHATS_ERROR, payload: e.message })
-  }
-}
-
 export const login = code => async dispatch => {
   try {
     const token = await AsyncStorage.getItem('accessToken')
